@@ -1,0 +1,517 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kebun Pintar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+  /* Layout: satu kolom tinggi seperti jalan setapak di kebun. Menu berisi tiga ubin besar, permainan menampilkan satu soal per layar. */
+  :root {
+    --bg: #d9f0ff;
+    --surface: #ffffff;
+    --ink: #1d2b4f;
+    --ink-soft: #4a5a82;
+    --line: #b7dcf5;
+    --shadow: rgba(29, 43, 79, 0.18);
+    --sun: #ffc83d;
+    --leaf: #34c48a;
+    --berry: #ff6d9a;
+    --sea: #6fa0ff;
+    --bad: #e8704a;
+    --on-color: #14213d;
+    --display: 'Baloo 2', ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+    --body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #13213d;
+      --surface: #1f3157;
+      --ink: #f2f6ff;
+      --ink-soft: #b4c2e6;
+      --line: #33497a;
+      --shadow: rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #13213d;
+    --surface: #1f3157;
+    --ink: #f2f6ff;
+    --ink-soft: #b4c2e6;
+    --line: #33497a;
+    --shadow: rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 18px;
+    font-weight: 600;
+    padding-block: 20px 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    -webkit-tap-highlight-color: transparent;
+  }
+  .app { max-width: 560px; margin: 0 auto; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 2.6rem;
+    line-height: 1;
+    background: linear-gradient(transparent 62%, var(--sun) 62% 92%, transparent 92%);
+    padding-inline: 4px;
+  }
+  .star-count {
+    background: var(--surface);
+    border: 3px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 16px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.5rem;
+    white-space: nowrap;
+  }
+  .star-count span { color: #f2a900; }
+  .hello { font-family: var(--display); font-size: 1.5rem; margin: 18px 0 16px; text-wrap: balance; }
+
+  .menu { display: grid; gap: 16px; }
+  .tile {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 16px 18px;
+    border: 0;
+    border-radius: 28px;
+    text-align: left;
+    color: var(--on-color);
+    box-shadow: 0 7px 0 var(--shadow);
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .tile:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--shadow); }
+  .tile .big { font-size: 3.6rem; text-align: center; line-height: 1; }
+  .tile strong { display: block; font-family: var(--display); font-weight: 800; font-size: 1.75rem; line-height: 1.1; }
+  .tile small { display: block; font-size: 1.05rem; font-weight: 800; margin-top: 2px; }
+  .t-sun { background: var(--sun); }
+  .t-leaf { background: var(--leaf); }
+  .t-berry { background: var(--berry); }
+
+  .sound {
+    margin: 22px auto 0;
+    display: block;
+    background: transparent;
+    border: 3px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+
+  .bar { display: flex; align-items: center; gap: 12px; }
+  .btn {
+    min-height: 52px;
+    border-radius: 18px;
+    border: 3px solid var(--line);
+    background: var(--surface);
+    padding: 6px 18px;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 0 var(--shadow);
+  }
+  .btn.main { background: var(--sun); border-color: var(--sun); color: var(--on-color); font-size: 1.5rem; min-height: 64px; padding-inline: 26px; }
+  .dots { flex: 1; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--line); }
+  .dot.done { background: var(--leaf); }
+  .dot.now { background: var(--sun); box-shadow: 0 0 0 3px var(--ink); }
+
+  .card {
+    background: var(--surface);
+    border-radius: 32px;
+    padding: 20px 16px 22px;
+    margin-block: 18px 12px;
+    box-shadow: 0 7px 0 var(--shadow);
+    text-align: center;
+  }
+  .prompt { font-family: var(--display); font-weight: 800; font-size: 1.7rem; line-height: 1.15; margin: 0 0 14px; text-wrap: balance; }
+  .hint { color: var(--ink-soft); font-size: 1rem; margin: -6px 0 10px; }
+
+  .field { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; min-height: 132px; align-content: center; margin-bottom: 18px; }
+  .item {
+    position: relative;
+    background: none;
+    border: 0;
+    padding: 2px;
+    font-size: clamp(2.5rem, 12vw, 3.8rem);
+    line-height: 1.1;
+    animation: pop 0.35s both;
+  }
+  .badge {
+    position: absolute; top: -2px; right: -4px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--berry); color: var(--on-color);
+    font-family: var(--display); font-weight: 800; font-size: 1.1rem;
+    display: grid; place-items: center;
+  }
+
+  .answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .ans {
+    min-height: 92px;
+    border-radius: 26px;
+    border: 4px solid var(--sea);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 3rem;
+    box-shadow: 0 6px 0 var(--shadow);
+  }
+  .ans:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--shadow); }
+  .ans.right { background: var(--leaf); border-color: var(--leaf); color: var(--on-color); }
+  .ans.wrong { border-color: var(--bad); opacity: 0.45; animation: shake 0.35s; }
+
+  .pic { font-size: clamp(5rem, 28vw, 7.5rem); line-height: 1.1; margin-bottom: 4px; }
+  .word { font-family: var(--display); font-weight: 800; font-size: 2.6rem; letter-spacing: 0.06em; margin-bottom: 16px; }
+  .word b { color: var(--berry); font-size: 3.2rem; }
+
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .mcard {
+    aspect-ratio: 1;
+    border: 4px solid var(--sea);
+    border-radius: 20px;
+    background: var(--sea);
+    color: var(--on-color);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(2rem, 10vw, 3.2rem);
+    box-shadow: 0 5px 0 var(--shadow);
+    padding: 0;
+  }
+  .mcard.open { background: var(--surface); border-color: var(--sun); }
+  .mcard.match { background: var(--leaf); border-color: var(--leaf); }
+
+  .msg { min-height: 2.4rem; margin: 6px 0 0; text-align: center; font-family: var(--display); font-weight: 800; font-size: 1.5rem; }
+
+  .end { text-align: center; }
+  .end .stars-row { font-size: 4.4rem; line-height: 1; letter-spacing: 0.08em; margin: 8px 0 4px; }
+  .end .on { color: var(--sun); text-shadow: 0 3px 0 var(--shadow); }
+  .end .off { color: var(--line); }
+  .end h2 { font-family: var(--display); font-weight: 800; font-size: 2.2rem; margin: 0 0 6px; }
+  .end p { margin: 0 0 18px; color: var(--ink-soft); }
+  .end .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  @keyframes pop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .item, .ans.wrong { animation: none; }
+    .tile, .ans { transition: none; }
+  }
+</style>
+
+<main class="app">
+  <section id="home">
+    <div class="top">
+      <h1>Kebun Pintar</h1>
+      <div class="star-count" aria-label="Jumlah bintang"><span>★</span> <b id="totalStars">0</b></div>
+    </div>
+    <p class="hello">Halo! Mau main apa hari ini?</p>
+    <div class="menu">
+      <button class="tile t-sun" type="button" data-game="count">
+        <span class="big" aria-hidden="true">🍎</span>
+        <span><strong>Hitung Buah</strong><small>Ada berapa buah? Hitung yuk!</small></span>
+      </button>
+      <button class="tile t-leaf" type="button" data-game="letter">
+        <span class="big" aria-hidden="true">🐘</span>
+        <span><strong>Huruf Pertama</strong><small>Kata ini mulai dari huruf apa?</small></span>
+      </button>
+      <button class="tile t-berry" type="button" data-game="memory">
+        <span class="big" aria-hidden="true">🐼</span>
+        <span><strong>Cari Pasangan</strong><small>Buka kartu, temukan yang sama</small></span>
+      </button>
+    </div>
+    <button class="sound" id="soundBtn" type="button">Suara: hidup</button>
+  </section>
+
+  <section id="game" hidden>
+    <div class="bar">
+      <button class="btn" id="back" type="button">Kembali</button>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+    </div>
+    <div class="card" id="stage"></div>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <section id="end" class="end" hidden>
+    <div class="card">
+      <div class="stars-row" id="endStars" aria-hidden="true"></div>
+      <h2 id="endTitle"></h2>
+      <p id="endText"></p>
+      <div class="row">
+        <button class="btn main" id="again" type="button">Main lagi</button>
+        <button class="btn" id="toMenu" type="button">Menu</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var KEY_STARS = 'kebunPintar.stars', KEY_SOUND = 'kebunPintar.sound';
+
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  var totalStars = parseInt(load(KEY_STARS, '0'), 10) || 0;
+  var soundOn = load(KEY_SOUND, '1') === '1';
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function rand(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+
+  /* Suara */
+  var ctx = null;
+  function tone(freq, dur, delay) {
+    if (!soundOn) return;
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = ctx.createOscillator(), g = ctx.createGain(), t0 = ctx.currentTime + (delay || 0);
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t0); o.stop(t0 + dur + 0.05);
+    } catch (e) {}
+  }
+  function say(text) {
+    if (!soundOn) return;
+    try {
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'id-ID'; u.rate = 0.85;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function happy() { tone(660, 0.14, 0); tone(880, 0.14, 0.12); tone(1100, 0.22, 0.24); }
+  function oops() { tone(260, 0.18, 0); tone(200, 0.22, 0.14); }
+
+  /* Layar */
+  var views = { home: $('#home'), game: $('#game'), end: $('#end') };
+  function show(name) {
+    Object.keys(views).forEach(function (k) { views[k].hidden = k !== name; });
+    window.scrollTo(0, 0);
+  }
+  function renderTotal() { $('#totalStars').textContent = totalStars; }
+  function renderSound() { $('#soundBtn').textContent = 'Suara: ' + (soundOn ? 'hidup' : 'mati'); }
+
+  /* Data */
+  var FRUITS = [
+    { e: '🍎', n: 'apel' }, { e: '🍌', n: 'pisang' }, { e: '🍓', n: 'stroberi' },
+    { e: '🍊', n: 'jeruk' }, { e: '🍇', n: 'anggur' }, { e: '🍐', n: 'pir' }
+  ];
+  var WORDS = [
+    { e: '🐔', w: 'ayam' }, { e: '🦆', w: 'bebek' }, { e: '🐴', w: 'kuda' }, { e: '🚗', w: 'mobil' },
+    { e: '🍌', w: 'pisang' }, { e: '🐄', w: 'sapi' }, { e: '🎩', w: 'topi' }, { e: '🐘', w: 'gajah' },
+    { e: '🍊', w: 'jeruk' }, { e: '🐟', w: 'ikan' }, { e: '🏠', w: 'rumah' }, { e: '🥛', w: 'susu' },
+    { e: '🍍', w: 'nanas' }, { e: '💡', w: 'lampu' }, { e: '🐱', w: 'kucing' }, { e: '🐸', w: 'katak' },
+    { e: '🍇', w: 'anggur' }, { e: '🌙', w: 'bulan' }, { e: '⭐', w: 'bintang' }, { e: '☀️', w: 'matahari' },
+    { e: '🍎', w: 'apel' }, { e: '⚽', w: 'bola' }
+  ];
+  var ANIMALS = ['🐶', '🐱', '🐰', '🐸', '🐼', '🦁', '🐵', '🐷'];
+  var PRAISE = ['Pintar sekali!', 'Hebat!', 'Betul!', 'Kamu keren!', 'Yey, benar!'];
+  var RETRY = ['Hampir! Coba lagi ya.', 'Ayo coba sekali lagi!', 'Belum tepat, coba lagi!'];
+  var LETTERS = 'ABCDEFGHIJKLMNOPRSTUY'.split('');
+
+  /* Status permainan */
+  var S = { mode: '', i: 0, total: 8, score: 0, wrong: false, locked: false, prev: 0, words: [], moves: 0 };
+  var stage = $('#stage'), msg = $('#msg'), dotsBox = $('#dots');
+
+  function buildDots(n) {
+    dotsBox.innerHTML = '';
+    for (var k = 0; k < n; k++) dotsBox.appendChild(el('span', 'dot'));
+  }
+  function updateDots() {
+    var d = dotsBox.children;
+    for (var k = 0; k < d.length; k++) {
+      d[k].className = 'dot' + (k < S.i ? ' done' : (k === S.i ? ' now' : ''));
+    }
+  }
+
+  function startGame(mode) {
+    S.mode = mode; S.i = 0; S.score = 0; S.moves = 0; S.prev = 0;
+    show('game');
+    if (mode === 'memory') { S.total = 4; buildDots(4); renderMemory(); return; }
+    S.total = 8; buildDots(8);
+    if (mode === 'letter') S.words = shuffle(WORDS).slice(0, 8);
+    nextRound();
+  }
+
+  function nextRound() {
+    if (S.i >= S.total) { finish(starsFor(S.score >= 7 ? 3 : (S.score >= 5 ? 2 : 1))); return; }
+    S.wrong = false; S.locked = false; msg.textContent = '';
+    updateDots();
+    if (S.mode === 'count') renderCount(); else renderLetter();
+  }
+  function starsFor(n) { return n; }
+
+  function makeAnswers(values, correct, spoken) {
+    var box = el('div', 'answers');
+    values.forEach(function (v) {
+      var b = el('button', 'ans');
+      b.type = 'button'; b.textContent = v;
+      b.addEventListener('click', function () { choose(b, v === correct, spoken); });
+      box.appendChild(b);
+    });
+    return box;
+  }
+
+  function choose(btn, ok, spoken) {
+    if (S.locked) return;
+    if (ok) {
+      S.locked = true;
+      btn.classList.add('right');
+      if (!S.wrong) S.score++;
+      msg.textContent = pick(PRAISE);
+      happy(); say(spoken);
+      S.i++; updateDots();
+      setTimeout(nextRound, 1500);
+    } else {
+      S.wrong = true;
+      btn.classList.add('wrong'); btn.disabled = true;
+      msg.textContent = pick(RETRY);
+      oops();
+    }
+  }
+
+  /* Permainan 1: hitung buah */
+  function renderCount() {
+    var n;
+    do { n = S.i < 3 ? rand(1, 5) : rand(3, 10); } while (n === S.prev);
+    S.prev = n;
+    var f = pick(FRUITS), c = 0;
+
+    stage.innerHTML = '';
+    var h = el('h2', 'prompt'); h.textContent = 'Ada berapa ' + f.n + '?';
+    var hint = el('p', 'hint'); hint.textContent = 'Sentuh buahnya untuk menghitung.';
+    var field = el('div', 'field');
+    for (var k = 0; k < n; k++) {
+      (function (k) {
+        var b = el('button', 'item');
+        b.type = 'button'; b.textContent = f.e; b.setAttribute('aria-label', f.n);
+        b.style.animationDelay = (k * 60) + 'ms';
+        b.addEventListener('click', function () {
+          if (b.dataset.m) return;
+          b.dataset.m = '1'; c++;
+          var s = el('span', 'badge'); s.textContent = c; b.appendChild(s);
+          tone(480 + c * 45, 0.1); say(String(c));
+        });
+        field.appendChild(b);
+      })(k);
+    }
+    var pool = [];
+    for (var v = n - 2; v <= n + 2; v++) if (v >= 1 && v <= 10 && v !== n) pool.push(v);
+    var values = shuffle([n].concat(shuffle(pool).slice(0, 2)));
+    stage.appendChild(h); stage.appendChild(hint); stage.appendChild(field);
+    stage.appendChild(makeAnswers(values, n, String(n)));
+  }
+
+  /* Permainan 2: huruf pertama */
+  function renderLetter() {
+    var item = S.words[S.i], first = item.w.charAt(0).toUpperCase();
+    stage.innerHTML = '';
+    var h = el('h2', 'prompt'); h.textContent = 'Kata ini mulai dari huruf apa?';
+    var pic = el('div', 'pic'); pic.textContent = item.e;
+    var w = el('div', 'word');
+    var b = el('b'); b.textContent = first;
+    w.appendChild(b); w.appendChild(document.createTextNode(item.w.slice(1)));
+    var pool = shuffle(LETTERS.filter(function (x) { return x !== first; })).slice(0, 2);
+    var values = shuffle([first].concat(pool));
+    stage.appendChild(h); stage.appendChild(pic); stage.appendChild(w);
+    stage.appendChild(makeAnswers(values, first, first + ' untuk ' + item.w));
+    setTimeout(function () { say(item.w); }, 250);
+  }
+
+  /* Permainan 3: cari pasangan */
+  function renderMemory() {
+    msg.textContent = '';
+    stage.innerHTML = '';
+    var h = el('h2', 'prompt'); h.textContent = 'Cari dua gambar yang sama!';
+    var grid = el('div', 'grid4');
+    var faces = shuffle(shuffle(ANIMALS).slice(0, 4).flatMap(function (a) { return [a, a]; }));
+    var open = [], busy = false, found = 0;
+
+    faces.forEach(function (face) {
+      var b = el('button', 'mcard');
+      b.type = 'button'; b.textContent = '?'; b.setAttribute('aria-label', 'Kartu tertutup');
+      b.addEventListener('click', function () {
+        if (busy || b.classList.contains('open') || b.classList.contains('match')) return;
+        b.classList.add('open'); b.textContent = face; b.setAttribute('aria-label', 'Kartu');
+        tone(520, 0.1);
+        open.push({ b: b, face: face });
+        if (open.length < 2) return;
+        S.moves++;
+        var a = open[0], c = open[1];
+        if (a.face === c.face) {
+          a.b.classList.add('match'); c.b.classList.add('match');
+          open = []; found++; S.i = found; updateDots();
+          msg.textContent = pick(PRAISE); happy();
+          if (found === 4) setTimeout(function () { finish(S.moves <= 6 ? 3 : (S.moves <= 9 ? 2 : 1)); }, 1200);
+        } else {
+          busy = true; oops();
+          setTimeout(function () {
+            [a, c].forEach(function (x) { x.b.classList.remove('open'); x.b.textContent = '?'; x.b.setAttribute('aria-label', 'Kartu tertutup'); });
+            open = []; busy = false; msg.textContent = '';
+          }, 900);
+        }
+      });
+      grid.appendChild(b);
+    });
+    stage.appendChild(h); stage.appendChild(grid);
+    updateDots();
+  }
+
+  /* Akhir permainan */
+  function finish(stars) {
+    totalStars += stars; save(KEY_STARS, String(totalStars)); renderTotal();
+    var row = '';
+    for (var k = 1; k <= 3; k++) row += '<span class="' + (k <= stars ? 'on' : 'off') + '">★</span>';
+    $('#endStars').innerHTML = row;
+    $('#endTitle').textContent = stars === 3 ? 'Hebat sekali!' : (stars === 2 ? 'Bagus!' : 'Ayo coba lagi!');
+    $('#endText').textContent = 'Kamu dapat ' + stars + ' bintang. Bintang kamu sekarang ' + totalStars + '.';
+    show('end');
+    happy(); say(stars === 3 ? 'Hebat sekali!' : (stars === 2 ? 'Bagus!' : 'Ayo coba lagi!'));
+  }
+
+  /* Tombol */
+  document.querySelectorAll('.tile').forEach(function (t) {
+    t.addEventListener('click', function () { startGame(t.dataset.game); });
+  });
+  $('#back').addEventListener('click', function () { show('home'); });
+  $('#toMenu').addEventListener('click', function () { show('home'); });
+  $('#again').addEventListener('click', function () { startGame(S.mode); });
+  $('#soundBtn').addEventListener('click', function () {
+    soundOn = !soundOn; save(KEY_SOUND, soundOn ? '1' : '0'); renderSound();
+    if (soundOn) tone(660, 0.15);
+  });
+
+  renderTotal(); renderSound();
+})();
+</script>
+
+</body></html>
